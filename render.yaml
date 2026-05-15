@@ -3,7 +3,7 @@ services:
     name: arlig-kor-server
     runtime: node
     buildCommand: npm install
-    startCommand: npx tsx server.ts
+    startCommand: npm start
     envVars:
       - key: PORT
         value: 10000
