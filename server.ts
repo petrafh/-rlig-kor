@@ -3,6 +3,102 @@ import { createServer } from 'http'
 import { WebSocketServer, WebSocket } from 'ws'
 import { randomBytes } from 'crypto'
 
+const placeholders: string[] = [
+  // Klassikere
+  'ALLE',
+  'Alle som er fra Oslo',
+  'Alle som bor utenfor Oslo',
+  'Alle som savner RT',
+  'Melodi pause',
+  'Den som hoster',
+  'Den siste som kom på vorset',
+  'Alle som drikker vin',
+  'Alle som skal bli fulle idag',
+  'Alle som har jobbet idag',
+  'Alle som er single',
+  'Alle med blondt hår',
+  'Brunt hår',
+  'Har et crush',
+  // Skole og studier
+  'Alle som studerer',
+  'De som har friår',
+  'De som gikk rett på studiene etter VGS',
+  'De som tar opp fag',
+  'De som har strøket i et fag',
+  'Fått 2 på en prøve',
+  'Ditchet skolen',
+  'Har sovet på forelesning',
+  'Har levert en oppgave for sent',
+  'Brukt ChatGPT på skolearbeid',
+  'Har stryk på CV-en',
+  'Aldri lest pensum',
+  // Kjærlighet og dating
+  'Har hatt kjæreste',
+  'Alle som har blitt dumpa av noen',
+  'Vært på tinderdate',
+  'Har blitt blokket på snap av noen',
+  'Har blokket noen før',
+  'Har ghostet noen',
+  'Har blitt ghostet',
+  'Har sendt en melding og angret',
+  'Har screenshotta en samtale',
+  'Har stalket en ex på instagram',
+  'Har likt et gammelt bilde ved et uhell',
+  'Er fortsatt venner med en ex',
+  'Har aldri vært i et forhold',
+  'Har hatt et hemmelig crush',
+  'Har konfesset til noen',
+  'Har blitt avvist',
+  // Fest og moro
+  'Har hatt et ons',
+  'Hooket flere enn 5',
+  'Har hatt blackout',
+  'Spydd på fest',
+  'Tror de spyr i kveld',
+  'Alle som skal ligge i kveld',
+  'Har sovet hos noen ukjent',
+  'Har tatt taxi hjem alene',
+  'Har mistet telefonen på fest',
+  'Har ringa noen de ikke burde sent på kveld',
+  'Har danset på et bord',
+  'Har grått på do på fest',
+  'Har sagt «siste runden» mer enn én gang',
+  'Er i drikkegjeld',
+  // Hverdagslig
+  'Har grått i 2026',
+  'Har ikke vasket håret på 3+ dager',
+  'Har spist frokost i dag',
+  'Har glemt å svare på en melding',
+  'Har late-shoppet klokken 23',
+  'Har betalt for mye for kaffe',
+  'Har sagt «jeg er snart der» mens de fortsatt er hjemme',
+  'Har løyet om å være syk',
+  'Har googlet symptomer og blitt redd',
+  'Har sett en serie to ganger',
+  'Har hoppet over gymmen i dag',
+  'Har hatt en plantedød',
+  'Er alltid for varm eller for kald',
+  'Har satt på vask og glemt den',
+  'Har falt på et helt flatt underlag',
+  // Dirty
+  'Har hatt sex',
+  'Alle som har hatt sex',
+  'Har hatt sex på kjøkkenet',
+  'Har hatt sex i sengen til foreldrene',
+  'Har dusjet med en annen',
+  'Sugd noen før',
+  'Har angret på noen man har hatt sex med',
+  'Alle som har ligget med noen fra Bergen',
+  'Har onanert',
+  'Alle som er kåte',
+]
+
+function randomPlaceholder(used: Set<string>): string {
+  const available = placeholders.filter((p) => !used.has(p))
+  const pool = available.length > 0 ? available : placeholders
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
 const app = express()
 const server = createServer(app)
 const wss = new WebSocketServer({ server })
@@ -145,9 +241,12 @@ wss.on('connection', (ws) => {
           allInputs.push({ input: inp, participantId: p.id })
         })
       })
-      // Fyll gjenværende plasser med "Alle"
+      // Fyll gjenværende plasser med tilfeldige placeholders fra banken
+      const usedPlaceholders = new Set<string>()
       while (allInputs.length < totalLines) {
-        allInputs.push({ input: 'Alle', participantId: 'system' })
+        const placeholder = randomPlaceholder(usedPlaceholders)
+        usedPlaceholders.add(placeholder)
+        allInputs.push({ input: placeholder, participantId: 'system' })
       }
       const indices = Array.from({ length: totalLines }, (_, i) => i)
       for (let i = indices.length - 1; i > 0; i--) {

@@ -241,19 +241,13 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
             </button>
           )}
 
-          {isHost && totalInputs > 0 && (
+          {isHost && (
             <button
               onClick={() => song && onStartGame(totalLines)}
               className="comic-btn w-full bg-green-400 text-black py-4 rounded-xl text-xl"
             >
               Start spillet!
             </button>
-          )}
-
-          {isHost && totalInputs === 0 && (
-            <p className="text-center font-bold text-gray-600 text-sm">
-              Venter på at deltakerne skal legge til inputs...
-            </p>
           )}
 
           {!isHost && (
