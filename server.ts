@@ -281,7 +281,7 @@ wss.on('connection', (ws) => {
   })
 })
 
-const PORT = 3001
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001
 server.listen(PORT, () => {
   console.log(`Sangleker server kjører på port ${PORT}`)
 })

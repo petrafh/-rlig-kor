@@ -8,7 +8,9 @@ export function useWebSocket(onMessage: MessageHandler) {
   onMessageRef.current = onMessage
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001')
+    const wsUrl = import.meta.env.VITE_WS_URL
+      ?? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:3001`
+    const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.onmessage = (e) => {
