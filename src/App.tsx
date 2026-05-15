@@ -5,7 +5,7 @@ import JoinRoom from './pages/JoinRoom'
 import Room from './pages/Room'
 import { useWebSocket } from './hooks/useWebSocket'
 
-type Screen = 'landing' | 'song-select' | 'join-room' | 'room'
+type Screen = 'landing' | 'song-select' | 'join-room' | 'room' | 'new-song'
 
 interface Participant {
   id: string
@@ -80,8 +80,11 @@ export default function App() {
       const r = msg.room as RoomState
       setState((prev) => ({
         ...prev,
+        screen: prev.screen === 'new-song' ? 'room' : prev.screen,
         room: r,
       }))
+    } else if (msg.type === 'ROOM_CLOSED') {
+      setState((prev) => ({ ...prev, screen: 'landing', room: null, participantId: null }))
     } else if (msg.type === 'ERROR') {
       setState((prev) => ({
         ...prev,
@@ -104,6 +107,11 @@ export default function App() {
     waitAndSend({ type: 'CREATE_ROOM', name: state.name, songId })
   }
 
+  function handleNewSong(songId: string) {
+    send({ type: 'NEW_SONG', songId })
+    setState((prev) => ({ ...prev, screen: 'room' }))
+  }
+
   function handleJoinSubmit(code: string) {
     waitAndSend({ type: 'JOIN_ROOM', name: state.name, code })
   }
@@ -118,6 +126,10 @@ export default function App() {
 
   function handleStartGame(totalLines: number) {
     send({ type: 'START_GAME', totalLines })
+  }
+
+  function handleCloseRoom() {
+    send({ type: 'CLOSE_ROOM' })
   }
 
   if (wsError) {
@@ -147,6 +159,15 @@ export default function App() {
     )
   }
 
+  if (state.screen === 'new-song') {
+    return (
+      <SongSelect
+        onSelect={handleNewSong}
+        onBack={() => setState((prev) => ({ ...prev, screen: 'room' }))}
+      />
+    )
+  }
+
   if (state.screen === 'join-room') {
     return (
       <JoinRoom
@@ -167,6 +188,8 @@ export default function App() {
         onAddInput={handleAddInput}
         onDeleteInput={handleDeleteInput}
         onStartGame={handleStartGame}
+        onNewSong={() => setState((prev) => ({ ...prev, screen: 'new-song' }))}
+        onCloseRoom={handleCloseRoom}
         onHome={() => setState((prev) => ({ ...prev, screen: 'landing', room: null, participantId: null }))}
       />
     )

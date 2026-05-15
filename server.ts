@@ -116,10 +116,25 @@ interface Room {
   participants: Participant[]
   assignedInputs: { input: string; lyricIndex: number; participantId: string }[]
   gameStarted: boolean
+  expiryTimer: ReturnType<typeof setTimeout>
 }
+
+const ROOM_TTL_MS = 8 * 60 * 60 * 1000 // 8 timer
 
 const rooms = new Map<string, Room>()
 const clientRooms = new Map<WebSocket, { roomCode: string; participantId: string }>()
+
+function deleteRoom(code: string) {
+  const room = rooms.get(code)
+  if (!room) return
+  clearTimeout(room.expiryTimer)
+  broadcastAll(code, { type: 'ROOM_CLOSED' })
+  rooms.delete(code)
+}
+
+function makeExpiryTimer(code: string) {
+  return setTimeout(() => deleteRoom(code), ROOM_TTL_MS)
+}
 
 function generateCode(): string {
   return randomBytes(3).toString('hex').toUpperCase()
@@ -181,6 +196,7 @@ wss.on('connection', (ws) => {
         participants: [{ id: participantId, name: msg.name as string, inputs: [] }],
         assignedInputs: [],
         gameStarted: false,
+        expiryTimer: makeExpiryTimer(code),
       }
       rooms.set(code, room)
       clientRooms.set(ws, { roomCode: code, participantId })
@@ -259,6 +275,22 @@ wss.on('connection', (ws) => {
       }))
       room.gameStarted = true
       broadcastAll(roomCode, roomState(room))
+      return
+    }
+
+    if (msg.type === 'NEW_SONG') {
+      if (room.hostId !== participantId) return
+      room.songId = msg.songId as string
+      room.assignedInputs = []
+      room.gameStarted = false
+      room.participants.forEach((p) => { p.inputs = [] })
+      broadcastAll(roomCode, roomState(room))
+      return
+    }
+
+    if (msg.type === 'CLOSE_ROOM') {
+      if (room.hostId !== participantId) return
+      deleteRoom(roomCode)
       return
     }
   })

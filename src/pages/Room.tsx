@@ -28,10 +28,12 @@ interface Props {
   onAddInput: (input: string, totalLines: number) => void
   onDeleteInput: (index: number) => void
   onStartGame: (totalLines: number) => void
+  onNewSong: () => void
+  onCloseRoom: () => void
   onHome: () => void
 }
 
-export default function Room({ room, participantId, isHost, onAddInput, onDeleteInput, onStartGame, onHome }: Props) {
+export default function Room({ room, participantId, isHost, onAddInput, onDeleteInput, onStartGame, onNewSong, onCloseRoom, onHome }: Props) {
   const [showInputField, setShowInputField] = useState(false)
   const [inputValue, setInputValue] = useState('')
 
@@ -80,7 +82,7 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
                 {room.code}
               </button>
             </div>
-            <div className="flex gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               {room.participants.map((p) => (
                 <span
                   key={p.id}
@@ -91,6 +93,16 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
                   {p.name}
                 </span>
               ))}
+              {isHost && (
+                <>
+                  <button onClick={onNewSong} className="comic-btn bg-blue-300 text-black text-xs font-black px-3 py-1 rounded-lg">
+                    Ny sang
+                  </button>
+                  <button onClick={onCloseRoom} className="comic-btn bg-red-400 text-black text-xs font-black px-3 py-1 rounded-lg">
+                    Lukk rom
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </header>
@@ -149,6 +161,16 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
             {room.code}
           </button>
           <span className="font-bold text-gray-700 text-sm hidden sm:block">← del koden!</span>
+          {isHost && (
+            <div className="flex items-center gap-2 ml-auto">
+              <button onClick={onNewSong} className="comic-btn bg-blue-300 text-black text-xs font-black px-3 py-1 rounded-lg">
+                Ny sang
+              </button>
+              <button onClick={onCloseRoom} className="comic-btn bg-red-400 text-black text-xs font-black px-3 py-1 rounded-lg">
+                Lukk rom
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
