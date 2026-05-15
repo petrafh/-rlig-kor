@@ -90,7 +90,7 @@ export default function App() {
     }
   }, [])
 
-  const { waitAndSend, send } = useWebSocket(handleMessage)
+  const { waitAndSend, send, error: wsError } = useWebSocket(handleMessage)
 
   function handleCreateRoom(name: string) {
     setState((prev) => ({ ...prev, name, screen: 'song-select' }))
@@ -118,6 +118,20 @@ export default function App() {
 
   function handleStartGame(totalLines: number) {
     send({ type: 'START_GAME', totalLines })
+  }
+
+  if (wsError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+        <div className="bg-red-300 comic-border rounded-2xl p-6 max-w-sm w-full text-center space-y-3">
+          <p className="bangers text-3xl text-black">Ingen servertilkobling</p>
+          <p className="font-bold text-black text-sm">Serveren er ikke tilgjengelig. Start serveren lokalt eller sett opp VITE_WS_URL.</p>
+          <button onClick={() => window.location.reload()} className="comic-btn bg-yellow-300 text-black px-4 py-2 rounded-xl w-full">
+            Prøv igjen
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (state.screen === 'landing') {

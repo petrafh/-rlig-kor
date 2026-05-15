@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 
 type MessageHandler = (msg: Record<string, unknown>) => void
 
@@ -6,12 +6,17 @@ export function useWebSocket(onMessage: MessageHandler) {
   const wsRef = useRef<WebSocket | null>(null)
   const onMessageRef = useRef(onMessage)
   onMessageRef.current = onMessage
+  const [connected, setConnected] = useState(false)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
-    const wsUrl = import.meta.env.VITE_WS_URL
-      ?? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname}:3001`
+    const wsUrl = import.meta.env.VITE_WS_URL ?? 'ws://localhost:3001'
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
+
+    ws.onopen = () => { setConnected(true); setError(false) }
+    ws.onclose = () => setConnected(false)
+    ws.onerror = () => setError(true)
 
     ws.onmessage = (e) => {
       try {
@@ -41,5 +46,5 @@ export function useWebSocket(onMessage: MessageHandler) {
     }
   }, [])
 
-  return { send, waitAndSend }
+  return { send, waitAndSend, connected, error }
 }
