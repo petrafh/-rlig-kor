@@ -16,6 +16,10 @@ export const placeholders: string[] = [
   'Brunt hår',
   'Har et crush',
   'Alle nysingle',
+  'Alle som ikke sov nok i natt',
+  'Alle som er trøtte',
+  'Alle som er sulten akkurat nå',
+  'Alle som har vært i utlandet i år',
 
   // Skole og studier
   'Alle som studerer',
@@ -30,6 +34,9 @@ export const placeholders: string[] = [
   'Brukt ChatGPT på skolearbeid',
   'Har stryk på CV-en',
   'Aldri lest pensum',
+  'Har lest til eksamen dagen før',
+  'Har glemt en eksamen',
+  'Har hatt en gruppejobb som gikk dårlig',
 
   // Kjærlighet og dating
   'Har hatt kjæreste',
@@ -48,21 +55,26 @@ export const placeholders: string[] = [
   'Har hatt et hemmelig crush',
   'Har konfesset til noen',
   'Har blitt avvist',
+  'Har datet noen eldre enn seg selv',
+  'Har datet noen yngre enn seg selv',
+  'Har hatt en langdistanserelasjon',
 
   // Fest og moro
-  'Har hatt et ons',
-  'Hooket flere enn 5',
   'Har hatt blackout',
   'Spydd på fest',
-  'Tror de spyr i kveld',
-  'Alle som skal ligge i kveld',
-  'Har sovet hos noen ukjent',
   'Har tatt taxi hjem alene',
   'Har mistet telefonen på fest',
   'Har ringa noen de ikke burde sent på kveld',
   'Har danset på et bord',
   'Har grått på do på fest',
   'Er i drikkegjeld',
+  'Har sovnet på festen',
+  'Har gått hjem uten å si hade',
+  'Har møtt noen på fest og blitt gode venner',
+  'Har drukket noe de ikke visste hva var',
+  'Har funnet noe i lommene dagen etter fest',
+  'Har glemt hele kvelden',
+  'Har hatt en pinlig dansesekvens',
 
   // Hverdagslig
   'Har grått i 2026',
@@ -81,17 +93,15 @@ export const placeholders: string[] = [
   'Har satt på vask og glemt den',
   'Har falt på et helt flatt underlag',
   'Har googlet seg selv',
-
-  // Dirty
-  'Har hatt sex',
-  'Alle som har hatt sex',
-  'Har hatt sex på kjøkkenet',
-  'Har hatt sex i sengen til foreldrene',
-  'Har dusjet med en annen',
-  'Sugd noen før',
-  'Har angret på noen man har hatt sex med',
-  'Alle som har ligget med noen fra Bergen',
-  'Har onanert',
-  'Alle som er kåte',
-  'Har ligget med noen i dette rommet'
+  'Har sagt noe pinlig og tenkt på det i årevis',
+  'Har vært på feil buss/trikk',
+  'Har glemt bursdagen til noen nær',
+  'Har snakket med noen og ikke husket navnet',
+  'Har kommet for sent til noe viktig',
+  'Har sovet til middag',
+  'Har spist middag til frokost',
+  'Har bestilt pizza til seg selv',
+  'Har sett på samme film mer enn tre ganger',
+  'Har laget mat og brent det',
+  'Har glemt nøklene hjemme',
 ]
