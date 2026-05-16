@@ -6,10 +6,16 @@ import { randomBytes } from 'crypto'
 const placeholders: string[] = [
   // Klassikere
   'ALLE',
+  'De som har sett Twin Peaks',
+  'De som kjenner på fylleangst imrg',
+  'Eldste i søskenflokken',
+  'Alle som tok spansk',
+  'Alle som tok fransk',
+  'Alle som tok tysk',
+  'Enebarna',
   'Alle som er fra Oslo',
   'Alle som bor utenfor Oslo',
   'Alle som savner RT',
-  'Melodi pause',
   'Den som hoster',
   'Den siste som kom på vorset',
   'Alle som drikker vin',
@@ -17,8 +23,9 @@ const placeholders: string[] = [
   'Alle som har jobbet idag',
   'Alle som er single',
   'Alle som har kjæreste',
-  'Alle med blondt hår',
-  'Brunt hår',
+  'De som ikke kan denne sangen',
+  'Blondinene',
+  'Brunettene',
   'Har et crush',
   'Alle nysingle',
   'Alle som ikke sov nok i natt',
@@ -26,6 +33,7 @@ const placeholders: string[] = [
   'Alle som er sulten akkurat nå',
   'Alle som har vært i utlandet i år',
   // Skole og studier
+  'De som uironisk så på riverdale',
   'Alle som studerer',
   'De som har friår',
   'De som gikk rett på studiene etter VGS',
@@ -41,6 +49,9 @@ const placeholders: string[] = [
   'Har lest til eksamen dagen før',
   'Har glemt en eksamen',
   'Har hatt en gruppejobb som gikk dårlig',
+  'Vibecodet en drikkelek webapp istedenfor å øve til eksamen',
+  'De med dårlig sangstemme',
+  'De med bra sangstemme',
   // Kjærlighet og dating
   'Har hatt kjæreste',
   'Alle som har blitt dumpa av noen',
@@ -61,6 +72,7 @@ const placeholders: string[] = [
   'Har datet noen eldre enn seg selv',
   'Har datet noen yngre enn seg selv',
   'Har hatt en langdistanserelasjon',
+  'Er en serieromantiker',
   // Fest og moro
   'Har hatt blackout',
   'Spydd på fest',
@@ -92,10 +104,9 @@ const placeholders: string[] = [
   'Har hatt en plantedød',
   'Er alltid for varm eller for kald',
   'Har satt på vask og glemt den',
-  'Har falt på et helt flatt underlag',
   'Har googlet seg selv',
   'Har sagt noe pinlig og tenkt på det i årevis',
-  'Har vært på feil buss/trikk',
+  'Har gått på feil buss/trikk',
   'Har glemt bursdagen til noen nær',
   'Har snakket med noen og ikke husket navnet',
   'Har kommet for sent til noe viktig',
@@ -105,6 +116,8 @@ const placeholders: string[] = [
   'Har sett på samme film mer enn tre ganger',
   'Har laget mat og brent det',
   'Har glemt nøklene hjemme',
+  'Har løpt etter bussen',
+  'Alle som vil ha et SKAM comeback'
 ]
 
 function randomPlaceholder(used: Set<string>): string {
