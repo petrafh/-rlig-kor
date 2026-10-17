@@ -134,6 +134,7 @@ interface Participant {
   id: string
   name: string
   inputs: string[]
+  resumeToken: string
 }
 
 interface Room {
@@ -197,7 +198,7 @@ function roomState(room: Room) {
     room: {
       code: room.code,
       songId: room.songId,
-      participants: room.participants,
+      participants: room.participants.map(({ id, name, inputs }) => ({ id, name, inputs })),
       assignedInputs: room.assignedInputs,
       gameStarted: room.gameStarted,
     },
@@ -213,21 +214,42 @@ wss.on('connection', (ws) => {
       return
     }
 
+    if (msg.type === 'RESUME_ROOM') {
+      const room = rooms.get(String(msg.code))
+      const participant = room?.participants.find((p) => p.resumeToken === msg.resumeToken)
+      if (!room || !participant) {
+        ws.send(JSON.stringify({ type: 'SESSION_EXPIRED' }))
+        return
+      }
+      // Bind the new socket first so a delayed close cannot invalidate it.
+      for (const [client, info] of clientRooms) {
+        if (info.roomCode === room.code && info.participantId === participant.id) {
+          clientRooms.delete(client)
+          client.close()
+        }
+      }
+      clientRooms.set(ws, { roomCode: room.code, participantId: participant.id })
+      ws.send(JSON.stringify({ type: 'RESUMED', participantId: participant.id,
+        isHost: room.hostId === participant.id, ...roomState(room).room }))
+      return
+    }
+
     if (msg.type === 'CREATE_ROOM') {
       const code = generateCode()
       const participantId = randomBytes(8).toString('hex')
+      const resumeToken = randomBytes(32).toString('hex')
       const room: Room = {
         code,
         songId: msg.songId as string,
         hostId: participantId,
-        participants: [{ id: participantId, name: msg.name as string, inputs: [] }],
+        participants: [{ id: participantId, name: msg.name as string, inputs: [], resumeToken }],
         assignedInputs: [],
         gameStarted: false,
         expiryTimer: makeExpiryTimer(code),
       }
       rooms.set(code, room)
       clientRooms.set(ws, { roomCode: code, participantId })
-      ws.send(JSON.stringify({ type: 'CREATED', participantId, ...roomState(room).room, code }))
+      ws.send(JSON.stringify({ type: 'CREATED', participantId, resumeToken, ...roomState(room).room, code }))
       return
     }
 
@@ -239,10 +261,11 @@ wss.on('connection', (ws) => {
         return
       }
       const participantId = randomBytes(8).toString('hex')
-      const participant: Participant = { id: participantId, name: msg.name as string, inputs: [] }
+      const resumeToken = randomBytes(32).toString('hex')
+      const participant: Participant = { id: participantId, name: msg.name as string, inputs: [], resumeToken }
       room.participants.push(participant)
       clientRooms.set(ws, { roomCode: code, participantId })
-      ws.send(JSON.stringify({ type: 'JOINED', participantId, ...roomState(room).room, code }))
+      ws.send(JSON.stringify({ type: 'JOINED', participantId, resumeToken, ...roomState(room).room, code }))
       broadcast(code, roomState(room), ws)
       return
     }
@@ -323,20 +346,8 @@ wss.on('connection', (ws) => {
   })
 
   ws.on('close', () => {
-    const info = clientRooms.get(ws)
-    if (info) {
-      const { roomCode, participantId } = info
-      const room = rooms.get(roomCode)
-      if (room) {
-        room.participants = room.participants.filter((p) => p.id !== participantId)
-        if (room.participants.length === 0) {
-          rooms.delete(roomCode)
-        } else {
-          broadcastAll(roomCode, roomState(room))
-        }
-      }
-      clientRooms.delete(ws)
-    }
+    // Keep membership and inputs until the room expires so mobile clients can resume.
+    clientRooms.delete(ws)
   })
 })
 

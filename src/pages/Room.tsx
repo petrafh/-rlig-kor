@@ -268,9 +268,9 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
           ) : (
             <button
               onClick={() => setShowInputField(true)}
-              className="comic-btn w-full bg-yellow-300 text-black py-4 rounded-xl text-3xl"
+              className="comic-btn w-full bg-yellow-300 text-black px-4 py-4 rounded-xl text-lg"
             >
-              +
+              Legg til egen betingelse
             </button>
           )}
 

@@ -1,9 +1,9 @@
-  import { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import Landing from './pages/Landing'
 import SongSelect from './pages/SongSelect'
 import JoinRoom from './pages/JoinRoom'
 import Room from './pages/Room'
-import { useWebSocket } from './hooks/useWebSocket'
+import { SESSION_KEY, useWebSocket } from './hooks/useWebSocket'
 
 type Screen = 'landing' | 'song-select' | 'join-room' | 'room' | 'new-song'
 
@@ -47,7 +47,19 @@ export default function App() {
   })
 
   const handleMessage = useCallback((msg: Record<string, unknown>) => {
-    if (msg.type === 'CREATED') {
+    if (msg.type === 'CREATED' || msg.type === 'JOINED') {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ code: msg.code, resumeToken: msg.resumeToken }))
+    }
+    if (msg.type === 'RESUMED') {
+      setState((prev) => ({ ...prev, screen: 'room', participantId: msg.participantId as string,
+        isHost: msg.isHost as boolean, joinError: undefined,
+        room: { code: msg.code as string, songId: msg.songId as string,
+          participants: msg.participants as Participant[], assignedInputs: msg.assignedInputs as AssignedInput[],
+          gameStarted: msg.gameStarted as boolean } }))
+    } else if (msg.type === 'SESSION_EXPIRED') {
+      sessionStorage.removeItem(SESSION_KEY)
+      setState((prev) => ({ ...prev, screen: 'landing', room: null, participantId: null }))
+    } else if (msg.type === 'CREATED') {
       setState((prev) => ({
         ...prev,
         screen: 'room',
@@ -84,6 +96,7 @@ export default function App() {
         room: r,
       }))
     } else if (msg.type === 'ROOM_CLOSED') {
+      sessionStorage.removeItem(SESSION_KEY)
       setState((prev) => ({ ...prev, screen: 'landing', room: null, participantId: null }))
     } else if (msg.type === 'ERROR') {
       setState((prev) => ({
@@ -132,18 +145,22 @@ export default function App() {
     send({ type: 'CLOSE_ROOM' })
   }
 
-  if (wsError) {
+  if (wsError && !state.room) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
         <div className="bg-red-300 comic-border rounded-2xl p-6 max-w-sm w-full text-center space-y-3">
           <p className="bangers text-3xl text-black">Ingen servertilkobling</p>
-          <p className="font-bold text-black text-sm">Serveren er ikke tilgjengelig. Start serveren lokalt eller sett opp VITE_WS_URL.</p>
+          <p className="font-bold text-black text-sm">Forbindelsen er brutt. Vi prøver å koble til igjen automatisk.</p>
           <button onClick={() => window.location.reload()} className="comic-btn bg-yellow-300 text-black px-4 py-2 rounded-xl w-full">
             Prøv igjen
           </button>
         </div>
       </div>
     )
+  }
+
+  if (!state.room && sessionStorage.getItem(SESSION_KEY)) {
+    return <div role="status" className="min-h-screen flex items-center justify-center px-4 font-bold">Kobler deg tilbake til rommet …</div>
   }
 
   if (state.screen === 'landing') {
@@ -181,6 +198,8 @@ export default function App() {
 
   if (state.screen === 'room' && state.room && state.participantId) {
     return (
+      <>
+      {wsError && <div role="status" className="bg-orange-200 text-black text-center font-bold px-4 py-2">Kobler til igjen … Rommet og svarene dine er lagret.</div>}
       <Room
         room={state.room}
         participantId={state.participantId}
@@ -190,8 +209,12 @@ export default function App() {
         onStartGame={handleStartGame}
         onNewSong={() => setState((prev) => ({ ...prev, screen: 'new-song' }))}
         onCloseRoom={handleCloseRoom}
-        onHome={() => setState((prev) => ({ ...prev, screen: 'landing', room: null, participantId: null }))}
+        onHome={() => {
+          sessionStorage.removeItem(SESSION_KEY)
+          setState((prev) => ({ ...prev, screen: 'landing', room: null, participantId: null }))
+        }}
       />
+      </>
     )
   }
 
