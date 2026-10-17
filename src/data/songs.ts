@@ -235,7 +235,7 @@ export const songs: Song[] = [
   {
     id: 'ja-vi-elsker',
     title: 'Ja vi elsker',
-    artist: 'Norges nasjonalsang',
+    artist: 'Bodø Domkor',
     lines: [
       { lyric: 'Ja vi elsker dette landet' },
       { lyric: 'Som det stiger frem' },
