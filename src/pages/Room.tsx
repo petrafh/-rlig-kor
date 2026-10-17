@@ -67,7 +67,7 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
     return (
       <div className="min-h-screen flex flex-col">
         <header className="sticky top-0 z-10 bg-yellow-300 border-b-4 border-black">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button onClick={onHome} className="comic-btn bg-white rounded-lg p-2" title="Hjem">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -83,16 +83,27 @@ export default function Room({ room, participantId, isHost, onAddInput, onDelete
               </button>
             </div>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              {room.participants.map((p) => (
-                <span
-                  key={p.id}
-                  className={`comic-border-sm text-xs px-2 py-1 rounded-full font-black ${
-                    p.id === participantId ? 'bg-purple-400' : 'bg-white'
-                  }`}
-                >
-                  {p.name}
-                </span>
-              ))}
+              <details className="group">
+                <summary className="comic-btn bg-white rounded-lg px-3 py-1 text-xs font-black list-none [&::-webkit-details-marker]:hidden">
+                  Spillere ({room.participants.length})
+                  <span aria-hidden="true" className="inline-block ml-1 group-open:rotate-180">▾</span>
+                </summary>
+                <div className="absolute left-4 right-4 top-full mt-2 max-w-4xl mx-auto bg-white comic-border rounded-xl p-4">
+                  <h3 className="font-black text-sm mb-3">Spillere ({room.participants.length})</h3>
+                  <ul className="flex flex-wrap gap-2 max-h-[50svh] overflow-y-auto pb-1 pr-1" aria-label="Spillere">
+                    {room.participants.map((p) => (
+                      <li
+                        key={p.id}
+                        className={`comic-border-sm text-xs px-2 py-1 rounded-full font-black break-all ${
+                          p.id === participantId ? 'bg-purple-400' : 'bg-yellow-200'
+                        }`}
+                      >
+                        {p.name}{p.id === participantId ? ' (deg)' : ''}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
               {isHost && (
                 <>
                   <button onClick={onNewSong} className="comic-btn bg-blue-300 text-black text-xs font-black px-3 py-1 rounded-lg">
